@@ -1,9 +1,18 @@
 import pandas as pd
+import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import plotly.graph_objects as go
+import plotly.express as px
+
 from scipy import stats
+
+from jupyter_dash import JupyterDash
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
 #Paleta de colores
 
 palette = ['#00bcFF', '#ff9b00', '#06ae1f', '#ef57b3', '#c8cf00', '#0e4fc8', '#22cf81', '#ac1cde', '#a17e17', '#e70b00']
@@ -12,7 +21,7 @@ palette = ['#00bcFF', '#ff9b00', '#06ae1f', '#ef57b3', '#c8cf00', '#0e4fc8', '#2
 #Functions to create graphs for univariate analysis with:
 
 #Cathegorical variables:
-def cathegorical_simple(df, variables, palette = palette):
+def cathegorical_simple(df, variables, color = '#00bcFF'):
     """
     Generates count plots for categorical variables.
 
@@ -40,24 +49,24 @@ def cathegorical_simple(df, variables, palette = palette):
     for i, var in enumerate(variables):
         plt.subplot(num_rows, 2, i + 1)
 
-        #set the palette to use
-        palette_plot = palette[:len(df[var].unique())]
-
         # Take the order
         category_order = df[var].value_counts().index
         # Plot the countplot
-        plot = sns.countplot(data=df, x=var, hue=var, palette=palette_plot, edgecolor='black', order=category_order, zorder=3, legend=True)
-        plt.grid(visible=True, axis='y', zorder=0)
+        plot = sns.countplot(data=df, x=var, color=color, edgecolor='black', order=category_order, legend=True)
 
         # Calculate percentage using the actual height of the bar, so we don't have to calculate them previously
         total_count = len(df[var])
+        slots = df[var].nunique()
         for p in plot.patches:
             height = p.get_height()
             if height > 0:  # Only display percentage if height is greater than zero
                 percentage = (height / total_count) * 100
                 # Show the % over the bar
                 width = p.get_width()
-                plt.text(p.get_x() + width / 2., height + 3, f'{percentage:.1f}%', ha="center")
+                plt.text(p.get_x() + width / 2., height + (total_count*(1/300)), f'{height} ({percentage:.1f}%)', ha="center", fontsize=11-(slots*0.45))
+
+        #Remove top and right spines
+        sns.despine()
 
         # Add title and labels
         plt.title(f'Countplot of variable {var}')
@@ -95,22 +104,61 @@ def numerical_simple(df, variables, color='#00bcFF'):
     if len(variables) > 1:
         # Iterate over the variables
         for var in variables:
+            # Enable grid for y-axis
             axis[0, variables.index(var)].grid(visible=True, axis='y', zorder=0)
+
+            # Plot histogram and boxplot
             sns.histplot(ax=axis[0, variables.index(var)], data=df, x=var, kde=True, color=color, zorder=3)
             sns.boxplot(ax=axis[1, variables.index(var)], data=df, x=var, color=color)
+
+            # Remove spines
+            sns.despine(ax= axis[0, variables.index(var)], top=True, right=True, left=False, bottom=False)
+            sns.despine(ax= axis[1, variables.index(var)], top=True, right=True, left=False, bottom=False)
+            
+            # Set titles
             axis[0, variables.index(var)].set_title(f'Histogram of {var}')
             axis[1, variables.index(var)].set_title(f'Boxplot of {var}')
     else:
         var = variables[0]
+        # Enable grid for y-axis
         axis[0].grid(visible=True, axis='y', zorder=0)
+
+        # Plot histogram and boxplot
         sns.histplot(ax=axis[0], data=df, x=var, kde=True, color=color, zorder=3)
         sns.boxplot(ax=axis[1], data=df, x=var, color=color)
+
+        # Remove spines
+        sns.despine(ax= axis[0], top=True, right=True, left=False, bottom=False)
+        sns.despine(ax= axis[1], top=True, right=True, left=False, bottom=False)
+
+        # Set titles
         axis[0].set_title(f'Histogram of {var}')
         axis[1].set_title(f'Boxplot of {var}')
 
+    # Adjust layout
     plt.tight_layout()
+    # Display plots
     plt.show()
 
+
+def px_violin_simple(df, y):
+    """
+    Generates a violin plot for the distribution of a specified column.
+
+    This function creates a violin plot for the given numerical variable (`y`) from the dataframe (`df`).
+    The plot includes a box plot and individual points within the violins.
+
+    Parameters:
+    - df (pandas.DataFrame): The input dataframe containing the data.
+    - y (str): The numerical variable to be represented on the y-axis.
+
+    Returns:
+    None: Displays the violin plot.
+    """
+    fig = px.violin(df, y=y, box=True, points="all", hover_data=df.columns)
+    fig.update_layout(width=800, height=600)  # Adjust the width and height as needed
+    fig.update_layout(title_text=f'Distribution of {y}', title_x=0.5)
+    fig.show()
 
 
 
@@ -159,10 +207,20 @@ def cathegorical_pairs(df, dep_var, ind_vars, palette=palette):
         palette_plot = palette[:len(df[dep_var].unique())]
 
         # Plot the countplot
-        sns.countplot(data=df, x=var, hue=dep_var, palette=palette_plot, edgecolor='black', order=category_order, zorder=3)
-        plt.title(f'Countplot of {dep_var} as a function of {var}')
-        plt.grid(visible=True, axis='y', zorder=0)
+        plot = sns.countplot(data=df, x=var, hue=dep_var, palette=palette_plot, edgecolor='black', order=category_order)
+        
+        total_count = len(df[var])
+        slots = df[var].nunique()
+        for p in plot.patches:
+            height = p.get_height()
+            if height > 0:  # Only display percentage if height is greater than zero
+                # Show the % over the bar
+                width = p.get_width()
+                plt.text(p.get_x() + width / 2., height + (total_count*(1/300)), f'{int(height)}', ha="center", fontsize=11-(slots*0.5))
 
+        plt.title(f'Countplot of {dep_var} as a function of {var}')
+    
+    sns.despine()
     plt.tight_layout()
     plt.show()
 
@@ -229,10 +287,11 @@ def numerical_pairs(df, x_var, y_var, color = '#00bcFF'):
     equation_text = f"y = {slope:.2f}x + {intercept:.2f}"
     r_squared_text = f"R² = {r_value**2:.3f}"
 
-    plt.text(x=0.5, y=235, s=equation_text, fontsize=12)
-    plt.text(x=3, y=210, s=r_squared_text, fontsize=12)
+    height = df[y_var].max()
+    plt.text(x=0.5, y=(0.8*height), s=equation_text, fontsize=12)
+    plt.text(x=3, y=(0.73*height)-15, s=r_squared_text, fontsize=12)
 
-    plt.grid(True)
+    # plt.grid(True)
     plt.title(f'Scatterplot of {x_var} vs {y_var}')
     plt.show()
 
@@ -290,9 +349,30 @@ def mixed_trios(df, num_var, cath_inter, cath_intra, palette = palette):
     plt.show()
 
 
+def px_violin_multiple(dataframe, y, x, color):
+    """
+    Generates a violin plot for a numerical variable, separated by a categorical variable and colored by another categorical variable.
+
+    This function creates a violin plot for the given numerical variable (`y`) from the dataframe (`dataframe`).
+    The plot is separated into different columns based on the categorical variable (`x`) and colored by another categorical variable (`color`).
+    Box plots and individual points are also displayed within the violins.
+
+    Parameters:
+    - dataframe (pandas.DataFrame): The input dataframe containing the data.
+    - y (str): The numerical variable to be represented on the y-axis.
+    - x (str): The categorical variable used to separate the data into different columns.
+    - color (str): The categorical variable used to color the violins.
+
+    Returns:
+    None: Displays the violin plot.
+    """
+    fig = px.violin(dataframe, y=y, x=x, color=color, box=True, points="all", hover_data=dataframe.columns, template="plotly_dark")
+    fig.update_layout(title_text='Violin plot of Age vs Survived colored by Sex', title_x=0.5)
+    fig.show()
+
 
 # Correlation matrix
-def corr_matrix(df, palette='OrRd', corr_columns=["Age", "Fare", "Sex_male", "Sex_female", "Pclass", 
+def corr_matrix(df, palette='coolwarm', corr_columns=["Age", "Fare", "Sex_male", "Sex_female", "Pclass", 
                                 "Embarked_S", "Embarked_Q", "Embarked_C", 'n_fam', 'alone', 'has_deck', "Survived"]):
     """
     Generates and displays a correlation matrix heatmap for the specified columns in the dataframe.
@@ -317,3 +397,153 @@ def corr_matrix(df, palette='OrRd', corr_columns=["Age", "Fare", "Sex_male", "Se
 
     plt.title("Correlation Matrix")
     plt.show()
+
+
+def interactive_space(df_plot, grouping_variables = ['Survived', 'Age', 'Pclass', 'Embarked', 'Sex', 'deck', 'FamilyID']):
+    
+    # Variables categóricas disponibles
+    grouping_variables = ['Survived', 'Age', 'Pclass', 'Embarked', 'Sex', 'deck', 'FamilyID']
+
+
+    # Inicializar la app Dash
+    app = dash.Dash(__name__)  # Use JupyterDash instead of Dash
+
+    # Definir el layout de la app
+    app.layout = html.Div([
+        html.H1('Interactive Titanic Data Visualization', style={'textAlign': 'center'}),
+        html.Div([
+            html.Label('Group by:'),
+            dcc.Dropdown(
+                id='grouping-dropdown',
+                options=[{'label': var, 'value': var} for var in grouping_variables],
+                value=[],
+                multi=True,
+                placeholder='Select variables to group by'
+            )
+        ], style={'width': '500px', 'margin-bottom': '0px'}),
+        html.Div(id='group-counts', style={'margin-bottom': '0px'}),
+        dcc.Graph(id='scatter-plot')
+    ])
+
+    # Generar posiciones de los puntos en un cluster
+    def generate_cluster_positions(center_x, center_y, n_points):
+        """Genera posiciones aleatorias alrededor de un centro dado para los puntos en un cluster"""
+        angles = np.linspace(0, 2 * np.pi, n_points, endpoint=False)
+        radii = np.random.uniform(0, 1, size=n_points)  # Generar radios aleatorios
+        x_offsets = radii * np.cos(angles)
+        y_offsets = radii * np.sin(angles)
+        return center_x + x_offsets, center_y + y_offsets
+
+    # Callback para actualizar la gráfica y los conteos
+    @app.callback(
+        [Output('scatter-plot', 'figure'),
+        Output('group-counts', 'children')],
+        [Input('grouping-dropdown', 'value')]
+    )
+    def update_figure(selected_vars):
+        # Si se seleccionan variables categóricas, crear clusters
+        if selected_vars:
+            df_plot['Group'] = df_plot[selected_vars].astype(str).agg('-'.join, axis=1)
+        else:
+            df_plot['Group'] = 'All Passengers'
+
+        groups = df_plot['Group'].value_counts().index.tolist()
+        
+        fig = go.Figure()
+        group_counts = []
+
+        # Definir parámetros para la disposición en filas y columnas
+        max_clusters_per_row = 5
+        row_height = 5  # Espacio vertical entre filas
+        cluster_spacing_x = 5  # Espacio horizontal entre clusters
+
+        max_row = len(groups) // max_clusters_per_row
+        # Generar un cluster para cada grupo
+        for i, group in enumerate(groups):
+            
+            group_df_plot = df_plot[df_plot['Group'] == group]
+            n_points = len(group_df_plot)
+            
+            # Calcular el centro del cluster basado en la fila y la columna
+            row = i // max_clusters_per_row  # Definir la fila (empezando por 0)
+            col = i % max_clusters_per_row   # Definir la columna (de 0 a max_clusters_per_row-1)
+
+            center_x = col * cluster_spacing_x  # Separar los clusters en la fila
+            center_y = -row * row_height        # Cada fila tendrá una altura diferente
+            
+            #definir la distancia de las etiquetas de grupo y numero de individuos en funcion de la fila
+            if row == 0:
+                pos = 1.3
+            elif row == 1:
+                pos = 1.8
+            elif row == 2:
+                pos = 2.5
+            elif row == 3:
+                pos = 3
+            elif row == 4:
+                pos = 3.5
+            else:
+                pos = 4
+
+            # Generar posiciones para los puntos del cluster
+            x_positions, y_positions = generate_cluster_positions(center_x, center_y, n_points)
+
+            # Obtener información para el hover
+            hover_data = group_df_plot[['Name', 'Survived', 'Sex', 'Age', 'Fare', 'Pclass', 'Embarked', 'deck', 'n_fam', 'FamilyID', 'Family_Survival_Rate']].to_dict('records')
+            hover_text = [
+                f"Name: {d['Name']}<br>Survived: {d['Survived']}<br>Sex: {d['Sex']}<br>Age: {d['Age']}<br>Fare: {d['Fare']}<br>Pclass: {d['Pclass']}<br>Embarked: {d['Embarked']}<br>Deck: {d['deck']}<br>n_fam: {d['n_fam']}<br>FamilyID: {d['FamilyID']}<br>Family Survival Rate: {d['Family_Survival_Rate']}"
+                for d in hover_data
+            ]
+            fig.add_trace(go.Scatter(
+                x=x_positions,
+                y=y_positions,
+                mode='markers',
+                marker=dict(size=4),
+                name=group,
+                text=hover_text,
+                hoverinfo='text'
+            ))
+
+            # Añadir el número de individuos en cada grupo
+            fig.add_trace(go.Scatter(
+                x=[center_x],
+                y=[center_y - (0.2 + pos)],            # Posicionar el texto debajo del cluster
+                text=[str(n_points) + '<br>' + group],  
+                mode='text',
+                textfont=dict(color='black', size=12-(pos*0.7)),  # Usar el color blanco para el texto
+                showlegend=True, 
+                name=f'{n_points}'  # Hacer que el texto sea visible solo cuando el grupo es visible
+            ))
+
+            # Ajustar diseño de la gráfica
+            fig.update_layout(
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            title='Interactive Categorical Grouping of Titanic Passengers',
+            legend_title='Group',
+            template='plotly_white'  # Set the theme here
+            )
+
+
+        if selected_vars == []:
+            label = 'Index'
+        else:
+            label = ' + '.join(selected_vars)
+
+        # Ajustar diseño de la gráfica
+        fig.update_layout(
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            title='Interactive Categorical Grouping of Titanic Passengers',
+            legend_title=f'{label}',
+        )
+        
+        # Save the plot as an HTML file
+        # fig.write_html("titanic_clusters_plot.html") 
+
+        return fig, html.Ul([html.Li(count) for count in group_counts])
+
+    # Ejecutar la app
+    if __name__ == '__main__':
+       # Run the app inside the notebook
+        app.run_server(mode='inline', debug=True)

@@ -61,6 +61,13 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Acknowledgements
 Special thanks to the creators of the Titanic dataset and the contributors to the various Python libraries used in this analysis, including Pandas, NumPy, Matplotlib, and Seaborn.
 
+## Contact
+
+- **Name:** Juan Torralbo Torrado
+- **Email:** jtorralbotorrado@gmail.com
+- **LinkedIn:**  [https://www.linkedin.com/in/juan-torralbo-torrado/](https://www.linkedin.com/in/juan-torralbo-torrado/)
+- **GitHub:** [https://github.com/Juanto19](https://github.com/Juanto19)
+
 ---
 
 Feel free to customize this README further to fit your specific needs and repository details.

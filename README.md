@@ -1,6 +1,9 @@
 # Titanic Data Analysis
 
-![alt text](portada.jpeg)
+<p align="center">
+    <img src="portada.jpg" alt="alt text">
+</p>
+
 
 ## Introduction
 The sinking of the RMS Titanic on April 15, 1912, is one of the most infamous maritime disasters in history, 

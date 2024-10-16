@@ -1,8 +1,11 @@
 # Titanic Data Analysis
 
-## Overview
-
-This repository contains a comprehensive analysis of the Titanic dataset, focusing on uncovering insights, factors, and tendencies that influenced the survival outcomes of the passengers. The analysis is conducted using various data visualization and statistical techniques, providing a detailed examination of the relationships between different variables.
+## Introduction
+The sinking of the RMS Titanic on April 15, 1912, is one of the most infamous maritime disasters in history, 
+resulting in the loss of over 1,500 lives. This notebook aims to analyze the Titanic dataset to uncover insights into the 
+factors that influenced passenger survival. Through data visualization and statistical analysis,
+we will explore the relationships between various variables, such as age, fare, and class, to understand the 
+underlying patterns and correlations within the data.
 
 ## Repository Structure
 

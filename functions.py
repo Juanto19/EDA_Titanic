@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from scipy import stats
 #Paleta de colores
 
 palette = ['#00bcFF', '#ff9b00', '#06ae1f', '#ef57b3', '#c8cf00', '#0e4fc8', '#22cf81', '#ac1cde', '#a17e17', '#e70b00']
@@ -217,7 +218,20 @@ def numerical_pairs(df, x_var, y_var, color = '#00bcFF'):
     Returns:
     None: Displays the scatter plot with a regression line.
     """
+    #calculate linear regression and R squared value 
+    slope, intercept, r_value, p_value, std_err = stats.linregress(df[x_var], df[y_var])
+    r_squared = r_value**2
+    
+    #Plot the data
     sns.lmplot(data= df, x=x_var, y = y_var, height=4, aspect=4, scatter_kws={'color': color}, line_kws={'color': 'red'})
+
+    #Represent linear regression equation and R squared value 
+    equation_text = f"y = {slope:.2f}x + {intercept:.2f}"
+    r_squared_text = f"R² = {r_value**2:.3f}"
+
+    plt.text(x=0.5, y=235, s=equation_text, fontsize=12)
+    plt.text(x=3, y=210, s=r_squared_text, fontsize=12)
+
     plt.grid(True)
     plt.title(f'Scatterplot of {x_var} vs {y_var}')
     plt.show()
@@ -278,7 +292,7 @@ def mixed_trios(df, num_var, cath_inter, cath_intra, palette = palette):
 
 
 # Correlation matrix
-def corr_matrix(df, colors='inferno', corr_columns=["Age", "Fare", "Sex_male", "Sex_female", "Pclass", 
+def corr_matrix(df, palette='OrRd', corr_columns=["Age", "Fare", "Sex_male", "Sex_female", "Pclass", 
                                 "Embarked_S", "Embarked_Q", "Embarked_C", 'n_fam', 'alone', 'has_deck', "Survived"]):
     """
     Generates and displays a correlation matrix heatmap for the specified columns in the dataframe.
@@ -299,7 +313,7 @@ def corr_matrix(df, colors='inferno', corr_columns=["Age", "Fare", "Sex_male", "
 
     #Represent the heatmap
     plt.figure(figsize=(10, 8))
-    sns.heatmap(correlation_matrix, annot=True, cmap=colors, vmin=-1, vmax=1)
+    sns.heatmap(correlation_matrix, annot=True, cmap=palette, vmin=-1, vmax=1)
 
     plt.title("Correlation Matrix")
     plt.show()

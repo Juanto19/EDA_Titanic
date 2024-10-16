@@ -1,5 +1,7 @@
 # Titanic Data Analysis
 
+![alt text](portada.jpeg)
+
 ## Introduction
 The sinking of the RMS Titanic on April 15, 1912, is one of the most infamous maritime disasters in history, 
 resulting in the loss of over 1,500 lives. This notebook aims to analyze the Titanic dataset to uncover insights into the 

@@ -36,7 +36,7 @@ This repository contains a comprehensive analysis of the Titanic dataset, focusi
 ## How to Use
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/Juanto19/Titanic_backup.git
+    git clone https://github.com/Juanto19/EDA_Titanic.git
     cd Titanic_backup
     ```
 

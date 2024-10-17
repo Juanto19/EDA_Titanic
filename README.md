@@ -1,9 +1,10 @@
 # Titanic Data Analysis
 
+# Titanic Data Analysis
+
 <p align="center">
     <img src="data/portada.jpg" alt="alt text">
 </p>
-
 
 ## Introduction
 The sinking of the RMS Titanic on April 15, 1912, is one of the most infamous maritime disasters in history, 
@@ -16,6 +17,7 @@ underlying patterns and correlations within the data.
 
 - **EDA_Visualization_Titanic.ipynb**: The main Jupyter Notebook containing the step-by-step analysis of the Titanic dataset.
 - **functions.py**: A Python script with helper functions used in the analysis.
+- **app.py**: A Python script to run an interactive data visualization app using Streamlit.
 - **data/**: Directory containing the Titanic dataset and any other relevant data files.
 
 ## Analysis Highlights
@@ -60,6 +62,33 @@ underlying patterns and correlations within the data.
     jupyter notebook EDA_Visualization_Titanic.ipynb
     ```
 
+## Running the Streamlit App
+
+To run the interactive data visualization app using Streamlit, follow these steps:
+
+1. **Install Streamlit**:
+    If you haven't already installed Streamlit, you can do so using pip:
+    ```bash
+    pip install streamlit
+    ```
+
+2. **Install Other Dependencies**:
+    Ensure you have all other necessary libraries installed. You can install them using the `requirements.txt` file:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. **Run the App**:
+    Navigate to the directory containing `app.py` and run the following command in your terminal:
+    ```bash
+    streamlit run app.py
+    ```
+
+4. **View the App**:
+    After running the command, Streamlit will start a local web server. You can view the app by opening a web browser and navigating to the URL provided in the terminal (usually `http://localhost:8501`).
+
+By following these steps, you should be able to run the interactive Titanic data visualization app and explore the data in an interactive manner.
+
 ## Conclusion
 This repository provides a thorough analysis of the Titanic dataset, offering valuable insights into the factors that influenced passenger survival. The analysis framework is designed to be easily customizable, enabling further exploration and refinement of the study.
 
@@ -71,11 +100,8 @@ Special thanks to the creators of the Titanic dataset and the contributors to th
 
 ## Contact
 
+
 - **Name:** Juan Torralbo Torrado
 - **Email:** jtorralbotorrado@gmail.com
 - **LinkedIn:**  [https://www.linkedin.com/in/juan-torralbo-torrado/](https://www.linkedin.com/in/juan-torralbo-torrado/)
 - **GitHub:** [https://github.com/Juanto19](https://github.com/Juanto19)
-
----
-
-Feel free to customize this README further to fit your specific needs and repository details.

@@ -1,7 +1,7 @@
 # Titanic Data Analysis
 
 <p align="center">
-    <img src="portada.jpg" alt="alt text">
+    <img src="data/portada.jpg" alt="alt text">
 </p>
 
 
